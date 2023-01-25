@@ -1,17 +1,17 @@
 /******************************************************************************/
-// Typing
+// Typing.
 
 enum ECellValue {
-  none,
-  one,
-  two,
-  three,
-  four,
-  five,
-  six,
-  seven,
-  eight,
-  bomb,
+  none = 0,
+  one = 1,
+  two = 2,
+  three = 3,
+  four = 4,
+  five = 5,
+  six = 6,
+  seven = 7,
+  eight = 8,
+  bomb = 9,
 }
 
 enum ECellState {
@@ -20,8 +20,13 @@ enum ECellState {
   flagged,
 }
 
+enum ECellDisplay {
+  flag = "🚩",
+  bomb = "💣",
+}
+
 /******************************************************************************/
-// Classes
+// Classes.
 
 class Cell {
   public value: ECellValue;
@@ -40,7 +45,7 @@ class Cell {
 }
 
 class Game {
-  public static readonly bombs: number = 10;
+  public static readonly bombs: number = 20;
   public static readonly rows: number = 16;
   public static readonly cols: number = 16;
   public board: Cell[][];
@@ -163,41 +168,7 @@ class Game {
 }
 
 /******************************************************************************/
-// DOM Manipulation
-
-const body = document.querySelector("body") as HTMLElement;
-
-/* Create DOM board. */
-function createDOMBoard(): void {
-  const table = document.createElement("table");
-
-  for (let row = 0; row < Game.rows; row++) {
-    const tableRow = document.createElement("tr");
-
-    for (let col = 0; col < Game.cols; col++) {
-      const tableData = document.createElement("td");
-      /* Assign id to tableData. */
-      tableData.id = `${row} ${col}`;
-      /* Add click handler. */
-      tableData.addEventListener("click", tableDataClickHandler);
-
-      tableRow.append(tableData);
-    }
-
-    table.appendChild(tableRow);
-  }
-
-  body.appendChild(table);
-}
-
-createDOMBoard();
-
-function tableDataClickHandler(evt: MouseEvent): void {
-  console.log(evt.target);
-}
-
-/******************************************************************************/
-// Game logic
+// Game logic.
 
 let time = 0;
 let live = false;
@@ -210,6 +181,84 @@ let endGame = false;
 /* Reset the game. */
 
 /* Set won. */
+
+/******************************************************************************/
+// DOM manipulation.
+
+const body = document.querySelector("body") as HTMLElement;
+
+/* Create DOM board. */
+function createDOMBoard(): void {
+  const table = document.createElement("table");
+  table.id = "board";
+
+  for (let row = 0; row < Game.rows; row++) {
+    const tableRow = document.createElement("tr");
+
+    for (let col = 0; col < Game.cols; col++) {
+      const tableCell = document.createElement("td");
+      /* Assign id to tableCell. */
+      tableCell.id = `${row} ${col}`;
+      /* Toggle cell visibility. */
+      // toggleCellVisibility(tableCell); TODO: fix this here
+      /* Add click handler. */
+      tableCell.addEventListener("click", tableCellClickHandler);
+      tableCell.addEventListener("contextmenu", tableCellContextMenuHandler);
+
+      tableRow.appendChild(tableCell);
+    }
+    table.appendChild(tableRow);
+  }
+  body.appendChild(table);
+}
+
+createDOMBoard();
+const board = document.getElementById("board");
+const g = new Game();
+g.board.forEach((row, r) =>
+  row.forEach((cell, c) => {
+    const id = `${r} ${c}`;
+    const domCell = document.getElementById(id) as HTMLTableCellElement;
+    domCell.innerText = String(cell.value);
+  })
+);
+
+/* Flood fill. */
+function flood(value: string, row: number, col: number): void {
+  const id = `${row} ${col}`;
+  const cell = document.getElementById(id) as HTMLTableCellElement;
+
+  if (cell && cell.innerText === value) {
+    toggleCellVisibility(cell);
+
+    flood(value, row + 1, col);
+    flood(value, row - 1, col);
+    flood(value, row, col + 1);
+    flood(value, row, col - 1);
+  }
+}
+
+/* Toggle cell visibility. */
+function toggleCellVisibility(cell: HTMLTableCellElement): void {
+  cell.classList.toggle("hidden");
+}
+
+/* Cell click handler. */
+function tableCellClickHandler(evt: MouseEvent): void {
+  const cell = evt.target as HTMLTableElement;
+  const id = cell.getAttribute("id") as string;
+  const [row, col] = id.split(" ");
+  const value = cell.innerText;
+
+  flood(value, Number(row), Number(col));
+}
+
+/* Context menu handler. */
+function tableCellContextMenuHandler(evt: MouseEvent): void {
+  evt.preventDefault();
+  // FIXME
+  console.log("right clicked");
+}
 
 /******************************************************************************/
 

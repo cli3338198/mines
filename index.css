@@ -15,4 +15,10 @@ td {
   width: 30px;
   height: 30px;
   border: 1px solid red;
+  text-align: center;
+  cursor: pointer;
+}
+
+.hidden {
+  visibility: hidden;
 }
