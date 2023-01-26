@@ -22,3 +22,12 @@ td {
 .hidden {
   visibility: hidden;
 }
+
+.flagged::after {
+  content: "🚩";
+}
+
+.bomb::after {
+  content: "💣";
+  background-color: red;
+}

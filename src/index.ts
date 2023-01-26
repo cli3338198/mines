@@ -1,4 +1,8 @@
 /******************************************************************************/
+
+const body = document.querySelector("body") as HTMLElement;
+
+/******************************************************************************/
 // Typing.
 
 enum ECellValue {
@@ -49,9 +53,11 @@ class Game {
   public static readonly rows: number = 16;
   public static readonly cols: number = 16;
   public board: Cell[][];
+  public gameOver: boolean;
 
   constructor() {
     this.board = this.generateBoard();
+    this.gameOver = false;
   }
 
   /* Generate a board. */
@@ -147,6 +153,53 @@ class Game {
     }
   }
 
+  /* Handle cell click. */
+  public clickCell(id: string): boolean {
+    const [row, col] = id.split(" ");
+    const cell = this.board[Number(row)][Number(col)];
+
+    // if flagged, return
+    if (cell.state === ECellState.flagged) return this.gameOver;
+    // if visible, return
+    if (cell.state === ECellState.visible) return this.gameOver;
+
+    // flood fill
+    if (cell.state === ECellState.notvisible) {
+      cell.state = ECellState.visible;
+
+      this.flood(cell.value, Number(row) + 1, Number(col));
+      this.flood(cell.value, Number(row) - 1, Number(col));
+      this.flood(cell.value, Number(row), Number(col) + 1);
+      this.flood(cell.value, Number(row), Number(col) - 1);
+    }
+
+    // if bomb, set game over
+    if (cell.value === ECellValue.bomb) {
+      this.gameOver = true;
+      this.revealBombs();
+    }
+
+    // if has won, set game over
+    if (this.hasWon()) {
+      this.gameOver = true;
+    }
+
+    return this.gameOver;
+  }
+
+  /* Handle flag cell. */
+  public flagCell(id: string): void {
+    const [row, col] = id.split(" ");
+    const cell = this.board[Number(row)][Number(col)];
+
+    // toggle cell flagged
+    if (cell.state === ECellState.flagged) {
+      cell.state = ECellState.notvisible;
+    } else {
+      cell.state = ECellState.flagged;
+    }
+  }
+
   /* Check if player has won. */
   public hasWon(): boolean {
     let bombsFound = 0;
@@ -155,8 +208,9 @@ class Game {
       for (let col = 0; col < Game.cols; col++) {
         const cell = this.board[row][col];
         if (
-          cell.state === ECellState.flagged ||
-          cell.state === ECellState.notvisible
+          (cell.state === ECellState.flagged ||
+            cell.state === ECellState.notvisible) &&
+          cell.value === ECellValue.bomb
         ) {
           bombsFound++;
         }
@@ -170,9 +224,18 @@ class Game {
 /******************************************************************************/
 // Game logic.
 
-let time = 0;
 let live = false;
 let endGame = false;
+
+createDOMBoard();
+const g = new Game();
+g.board.forEach((row, r) =>
+  row.forEach((cell, c) => {
+    const id = `${r} ${c}`;
+    const domCell = document.getElementById(id) as HTMLTableCellElement;
+    domCell.innerText = String(cell.value);
+  })
+);
 
 /* Start the game. */
 
@@ -184,8 +247,6 @@ let endGame = false;
 
 /******************************************************************************/
 // DOM manipulation.
-
-const body = document.querySelector("body") as HTMLElement;
 
 /* Create DOM board. */
 function createDOMBoard(): void {
@@ -211,17 +272,6 @@ function createDOMBoard(): void {
   }
   body.appendChild(table);
 }
-
-createDOMBoard();
-const board = document.getElementById("board");
-const g = new Game();
-g.board.forEach((row, r) =>
-  row.forEach((cell, c) => {
-    const id = `${r} ${c}`;
-    const domCell = document.getElementById(id) as HTMLTableCellElement;
-    domCell.innerText = String(cell.value);
-  })
-);
 
 /* Flood fill. */
 function flood(value: string, row: number, col: number): void {
@@ -250,6 +300,11 @@ function tableCellClickHandler(evt: MouseEvent): void {
   const [row, col] = id.split(" ");
   const value = cell.innerText;
 
+  // if bomb
+  if (value === String(ECellValue.bomb)) {
+    return cell.classList.add("bomb");
+  }
+
   flood(value, Number(row), Number(col));
 }
 
@@ -257,7 +312,8 @@ function tableCellClickHandler(evt: MouseEvent): void {
 function tableCellContextMenuHandler(evt: MouseEvent): void {
   evt.preventDefault();
   // FIXME
-  console.log("right clicked");
+  const cell = evt.target as HTMLTableElement;
+  cell.classList.toggle("flagged");
 }
 
 /******************************************************************************/
