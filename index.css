@@ -23,11 +23,15 @@ td {
   visibility: hidden;
 }
 
-.flagged::after {
+td[data-state="2"] {
+  background-color: green;
+}
+
+/* .flagged::after {
   content: "🚩";
 }
 
 .bomb::after {
   content: "💣";
   background-color: red;
-}
+} */
