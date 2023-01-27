@@ -414,12 +414,11 @@ function cancellableClick(click: Promise<void>): ICancellableClick {
   let isCancelled = false;
 
   const wrappedClick = new Promise((resolve, reject) => {
-    click.then(
-      (value: void) => {
-        isCancelled === true ? reject({ isCancelled, value }) : resolve(value);
-      },
-      (error: Error) => reject({ isCancelled, error })
-    );
+    click
+      .then((value: void) => {
+        isCancelled === true ? reject() : resolve(value);
+      })
+      .catch(() => reject());
   });
 
   return {
