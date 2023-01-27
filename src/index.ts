@@ -76,6 +76,32 @@ class Game {
     // FIXME: use PROXY to log all changes in game to a display
     // also use proxy for setters so any changes in bombs, dimensions, etc
     // is logged to display!!
+    const proxyHandler = {
+      // reference to class inside handler
+      main: this,
+      /**
+       * @param target  the target called function
+       * @param thisArg the "this" argument for the call
+       * @param args    the list of arguments
+       * @return        results of the function
+       */
+      apply: function (target: Function, thisArg: any, args: any[]): any {
+        const results = target.bind(this.main)(...args);
+        // FIXME: do something here
+        return results;
+      },
+    };
+    // create proxy
+    // get all methods on game class
+    const methods = Object.getOwnPropertyNames(Game.prototype);
+    // skip the constructor method
+    const constructorIdx = methods.indexOf("constructor");
+    if (constructorIdx > -1) methods.splice(constructorIdx, 1);
+    // replace all methods with proxy methods
+
+    methods.forEach((methodName) => {
+      // this[methodName as keyof typeof Game.prototype] = new Proxy(, proxyHandler)
+    });
   }
 
   /* Generate a board. */
@@ -185,24 +211,24 @@ class Game {
   }
 
   /* Check if player has won. */
-  public hasWon(): boolean {
-    let minesFound = 0;
+  // public hasWon(): boolean {
+  //   let minesFound = 0;
 
-    for (let row = 0; row < this.rows; row++) {
-      for (let col = 0; col < this.cols; col++) {
-        const cell = this.board[row][col];
-        if (
-          (cell.state === ECellState.flagged ||
-            cell.state === ECellState.notvisible) &&
-          cell.value === ECellValue.mine
-        ) {
-          minesFound++;
-        }
-      }
-    }
+  //   for (let row = 0; row < this.rows; row++) {
+  //     for (let col = 0; col < this.cols; col++) {
+  //       const cell = this.board[row][col];
+  //       if (
+  //         (cell.state === ECellState.flagged ||
+  //           cell.state === ECellState.notvisible) &&
+  //         cell.value === ECellValue.mine
+  //       ) {
+  //         minesFound++;
+  //       }
+  //     }
+  //   }
 
-    return minesFound === this.mines;
-  }
+  //   return minesFound === this.mines;
+  // }
 }
 
 /******************************************************************************/
@@ -232,6 +258,11 @@ document.addEventListener("contextmenu", (evt: MouseEvent) => {
   evt.preventDefault();
 });
 
+/* Disable text selection. */
+document.addEventListener("mousedown", (evt: MouseEvent) => {
+  evt.preventDefault();
+});
+
 /* Single click handler. */
 function singleClickHandler(evt: MouseEvent): Promise<void> {
   // clear pending clicks
@@ -248,10 +279,14 @@ function singleClickHandler(evt: MouseEvent): Promise<void> {
       // execute single click
       const tableCell = evt.target as HTMLTableCellElement;
       const [row, col] = tableCell.id.split(" ");
-      // reveal cell
-      game?.reveal(Number(row), Number(col));
-      // update ui
-      updateUI();
+
+      if (game) {
+        // reveal cell
+        game.reveal(Number(row), Number(col));
+        // update ui
+        updateUI();
+      }
+
       console.log("single clicked", evt.target);
     })
     .catch(() => {
@@ -269,10 +304,14 @@ function doubleClickHandler(evt: MouseEvent): void {
   // execute double click
   const tableCell = evt.target as HTMLTableCellElement;
   const [row, col] = tableCell.id.split(" ");
-  // flag cell
-  game?.flagCell(Number(row), Number(col));
-  // update ui
-  updateUI();
+
+  if (game) {
+    // flag cell
+    game.flagCell(Number(row), Number(col));
+    // update ui
+    updateUI();
+  }
+
   console.log("double clicked", evt.target);
 }
 

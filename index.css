@@ -19,12 +19,12 @@ td {
   cursor: pointer;
 }
 
-.hidden {
+/* td[data-state="0"] {
   visibility: hidden;
-}
+} */
 
-td[data-state="2"] {
-  background-color: green;
+td[data-state="2"]::after {
+  content: "🚩";
 }
 
 /* .flagged::after {
