@@ -2,6 +2,7 @@ const path = require("path");
 
 // use node.js package system, because webpack will be read by node.js
 module.exports = {
+  mode: "development",
   entry: "./src/index.ts", // relative path to the entry file
   module: {
     rules: [
@@ -13,7 +14,8 @@ module.exports = {
     ],
   },
   output: {
+    publicPath: "public", // relative path, where dev-server serves code in memory from
     filename: "bundle.js", // name of output file that webpack bundles
-    path: path.resolve(__dirname, "dist"), // absolute path to output directory
+    path: path.resolve(__dirname, "public"), // absolute path to output directory
   },
 };
