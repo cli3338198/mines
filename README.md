@@ -2,15 +2,9 @@
 
 ## Installation
 
-<hr>
-
 ## Testing
 
-<hr>
-
 ## Webpack
-
-<hr>
 
 <p>Use webpack to bundle javascript files and compile typescript to javascript.</p>
 
