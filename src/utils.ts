@@ -1,4 +1,6 @@
+import { game } from ".";
 import { ICancellableClick } from "./types";
+import { updateUI } from "./ui";
 
 export let pendingClicks: ICancellableClick[] = [];
 
@@ -19,11 +21,6 @@ export let pendingClicks: ICancellableClick[] = [];
 //     flood(value, row, col - 1);
 //   }
 // }
-
-/* Toggle cell visibility. */
-function toggleCellVisibility(cell: HTMLTableCellElement): void {
-  cell.classList.toggle("hidden");
-}
 
 /* Cell click handler. */
 // function tableCellClickHandler(evt: MouseEvent): void {
@@ -48,9 +45,56 @@ function toggleCellVisibility(cell: HTMLTableCellElement): void {
 //   cell.classList.toggle("flagged");
 // }
 
-/* Toggle flagged status of cell. */
-export function toggleFlagCell(cell: HTMLTableCellElement): void {
-  cell.classList.toggle("flagged");
+/* Double click handler. */
+export function doubleClickHandler(evt: MouseEvent): void {
+  // clear pending clicks
+  clearPendingClicks();
+  // execute double click
+  const tableCell = evt.target as HTMLTableCellElement;
+  const [row, col] = tableCell.id.split(" ");
+
+  if (game) {
+    // flag cell
+    game.flagCell(Number(row), Number(col));
+    // update ui
+    updateUI();
+  }
+
+  console.log("double clicked", evt.target);
+}
+
+/* Single click handler. */
+export function singleClickHandler(evt: MouseEvent): Promise<void> {
+  // clear pending clicks
+  clearPendingClicks();
+  // create cancellable click with a delay of 300ms
+  const waitForClick = cancellableClick(delay(300));
+  // add the new click
+  addPendingClick(waitForClick);
+
+  return waitForClick.click
+    .then(() => {
+      // remove the click
+      removePendingClick(waitForClick);
+      // execute single click
+      const tableCell = evt.target as HTMLTableCellElement;
+      const [row, col] = tableCell.id.split(" ");
+
+      if (game) {
+        // reveal cell
+        game.reveal(Number(row), Number(col));
+        // update ui
+        updateUI();
+      }
+
+      console.log("single clicked", evt.target);
+    })
+    .catch(() => {
+      // remove the click
+      removePendingClick(waitForClick);
+      // handle errors
+      // FIXME:
+    });
 }
 
 /* Create a cancellable click. */
