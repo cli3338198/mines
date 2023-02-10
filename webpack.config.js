@@ -13,6 +13,9 @@ module.exports = {
       },
     ],
   },
+  resolve: {
+    extensions: [".ts", ".js"], // resolve imports
+  },
   output: {
     publicPath: "public", // relative path, where dev-server serves code in memory from
     filename: "bundle.js", // name of output file that webpack bundles
