@@ -1,13 +1,5 @@
 import { Game } from "./models";
 import { createBoard } from "./ui";
-import {
-  addPendingClick,
-  cancellableClick,
-  clearPendingClicks,
-  delay,
-  pendingClicks,
-  removePendingClick,
-} from "./utils";
 
 /******************************************************************************/
 // DOM selectors.

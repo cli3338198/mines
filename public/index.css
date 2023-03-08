@@ -19,9 +19,13 @@ td {
   cursor: pointer;
 }
 
-/* td[data-state="0"] {
+td[data-state="0"] {
   visibility: hidden;
-} */
+}
+
+td[data-state="1"] {
+  visibility: visible;
+}
 
 td[data-state="2"]::after {
   content: "🚩";

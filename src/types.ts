@@ -1,3 +1,6 @@
+/******************************************************************************/
+// Enums.
+
 export enum ECellValue {
   none = 0,
   one = 1,
@@ -16,6 +19,9 @@ export enum ECellState {
   visible,
   flagged,
 }
+
+/******************************************************************************/
+// Interfaces.
 
 export interface ICancellableClick {
   click: Promise<unknown>;

@@ -1,5 +1,5 @@
 import { game, board } from ".";
-import { singleClickHandler, doubleClickHandler } from "./utils";
+import { leftClickHandler, rightClickHandler } from "./utils";
 
 /* Toggle cell visibility. */
 export function toggleCellVisibility(cell: HTMLTableCellElement): void {
@@ -25,10 +25,10 @@ export function createBoard(): void {
         tableCell.innerHTML = String(cell.value);
         // add attributes to table cell
         tableCell.setAttribute("data-state", String(cell.state));
-        // add single click handler
-        tableCell.addEventListener("click", singleClickHandler);
-        // add double click handler
-        tableCell.addEventListener("dblclick", doubleClickHandler);
+        // add left click handler
+        tableCell.addEventListener("click", leftClickHandler);
+        // add right click handler
+        tableCell.addEventListener("contextmenu", rightClickHandler);
 
         tableRow.appendChild(tableCell);
       });

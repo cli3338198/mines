@@ -1,8 +1,8 @@
 import { game } from ".";
-import { ICancellableClick } from "./types";
+// import { ICancellableClick } from "./types";
 import { updateUI } from "./ui";
 
-export let pendingClicks: ICancellableClick[] = [];
+// export let pendingClicks: ICancellableClick[] = [];
 
 /******************************************************************************/
 // UI.
@@ -46,93 +46,131 @@ export let pendingClicks: ICancellableClick[] = [];
 // }
 
 /* Double click handler. */
-export function doubleClickHandler(evt: MouseEvent): void {
-  // clear pending clicks
-  clearPendingClicks();
-  // execute double click
-  const tableCell = evt.target as HTMLTableCellElement;
-  const [row, col] = tableCell.id.split(" ");
+// export function doubleClickHandler(evt: MouseEvent): void {
+//   // clear pending clicks
+//   clearPendingClicks();
+//   // execute double click
+//   const tableCell = evt.target as HTMLTableCellElement;
+//   const [row, col] = tableCell.id.split(" ");
 
-  if (game) {
-    // flag cell
-    game.flagCell(Number(row), Number(col));
+//   if (game) {
+//     // flag cell
+//     game.flagCell(Number(row), Number(col));
+//     // update ui
+//     updateUI();
+//   }
+
+//   console.log("double clicked", evt.target);
+// }
+
+/* Single click handler. */
+// export function singleClickHandler(evt: MouseEvent): Promise<void> {
+//   // clear pending clicks
+//   clearPendingClicks();
+//   // create cancellable click with a delay of 300ms
+//   const waitForClick = cancellableClick(delay(300));
+//   // add the new click
+//   addPendingClick(waitForClick);
+
+//   return waitForClick.click
+//     .then(() => {
+//       // remove the click
+//       removePendingClick(waitForClick);
+//       // execute single click
+//       const tableCell = evt.target as HTMLTableCellElement;
+//       const [row, col] = tableCell.id.split(" ");
+
+//       if (game) {
+//         // reveal cell
+//         game.reveal(Number(row), Number(col));
+//         // update ui
+//         updateUI();
+//       }
+
+//       console.log("single clicked", evt.target);
+//     })
+//     .catch(() => {
+//       // remove the click
+//       removePendingClick(waitForClick);
+//       // handle errors
+//       // FIXME:
+//     });
+// }
+
+/* Left click handler. */
+export function leftClickHandler(evt: MouseEvent): void {
+  if (game && !game.hasWon()) {
+    const [row, col] = getTableCellRowAndCol(
+      evt.target as HTMLTableCellElement
+    );
+
+    // reveal cell
+    game.reveal(Number(row), Number(col));
     // update ui
     updateUI();
   }
-
-  console.log("double clicked", evt.target);
 }
 
-/* Single click handler. */
-export function singleClickHandler(evt: MouseEvent): Promise<void> {
-  // clear pending clicks
-  clearPendingClicks();
-  // create cancellable click with a delay of 300ms
-  const waitForClick = cancellableClick(delay(300));
-  // add the new click
-  addPendingClick(waitForClick);
+/* Right click handler. */
+export function rightClickHandler(evt: MouseEvent): void {
+  evt.preventDefault();
 
-  return waitForClick.click
-    .then(() => {
-      // remove the click
-      removePendingClick(waitForClick);
-      // execute single click
-      const tableCell = evt.target as HTMLTableCellElement;
-      const [row, col] = tableCell.id.split(" ");
+  if (game && !game.hasWon()) {
+    const [row, col] = getTableCellRowAndCol(
+      evt.target as HTMLTableCellElement
+    );
 
-      if (game) {
-        // reveal cell
-        game.reveal(Number(row), Number(col));
-        // update ui
-        updateUI();
-      }
-
-      console.log("single clicked", evt.target);
-    })
-    .catch(() => {
-      // remove the click
-      removePendingClick(waitForClick);
-      // handle errors
-      // FIXME:
-    });
+    // flag cell
+    game.flagCell(row, col);
+    // update ui
+    updateUI();
+  }
 }
 
 /* Create a cancellable click. */
-export function cancellableClick(click: Promise<void>): ICancellableClick {
-  let isCancelled = false;
+// export function cancellableClick(click: Promise<void>): ICancellableClick {
+//   let isCancelled = false;
 
-  const wrappedClick = new Promise((resolve, reject) => {
-    click
-      .then((value: void) => {
-        isCancelled === true ? reject() : resolve(value);
-      })
-      .catch(() => reject());
-  });
+//   const wrappedClick = new Promise((resolve, reject) => {
+//     click
+//       .then((value: void) => {
+//         isCancelled === true ? reject() : resolve(value);
+//       })
+//       .catch(() => reject());
+//   });
 
-  return {
-    click: wrappedClick,
-    cancel: () => {
-      isCancelled = true;
-    },
-  };
+//   return {
+//     click: wrappedClick,
+//     cancel: () => {
+//       isCancelled = true;
+//     },
+//   };
+// }
+
+/* Get row and col of table cell. */
+export function getTableCellRowAndCol(
+  tableCell: HTMLTableCellElement
+): [number, number] {
+  const [row, col] = tableCell.id.split(" ");
+  return [Number(row), Number(col)];
 }
 
 /* Add a pending click. */
-export function addPendingClick(click: ICancellableClick): void {
-  pendingClicks = [...pendingClicks, click];
-}
+// export function addPendingClick(click: ICancellableClick): void {
+//   pendingClicks = [...pendingClicks, click];
+// }
 
 /* Remove a pending click. */
-export function removePendingClick(click: ICancellableClick): void {
-  pendingClicks = pendingClicks.filter((_click) => _click !== click);
-}
+// export function removePendingClick(click: ICancellableClick): void {
+//   pendingClicks = pendingClicks.filter((_click) => _click !== click);
+// }
 
 /* Clear pending clicks. */
-export function clearPendingClicks(): void {
-  pendingClicks.map((pendingClick) => pendingClick.cancel());
-}
+// export function clearPendingClicks(): void {
+//   pendingClicks.map((pendingClick) => pendingClick.cancel());
+// }
 
 /* Delay for click. */
-export function delay(n: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, n));
-}
+// export function delay(n: number): Promise<void> {
+//   return new Promise((resolve) => setTimeout(resolve, n));
+// }

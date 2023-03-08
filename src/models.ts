@@ -24,6 +24,7 @@ export class Game {
   public board: Cell[][];
   public gameStarted: boolean;
   public gameEnded: boolean;
+  public minesFound: number;
 
   constructor(
     private mines: number = Game._mines,
@@ -36,6 +37,7 @@ export class Game {
     this.board = this.generateBoard();
     this.gameStarted = true;
     this.gameEnded = false;
+    this.minesFound = 0;
     // FIXME: use PROXY to log all changes in game to a display
     // also use proxy for setters so any changes in bombs, dimensions, etc
     // is logged to display!!
@@ -173,23 +175,22 @@ export class Game {
     }
   }
 
-  /* Check if player has won. */
-  // public hasWon(): boolean {
-  //   let minesFound = 0;
-
-  //   for (let row = 0; row < this.rows; row++) {
-  //     for (let col = 0; col < this.cols; col++) {
-  //       const cell = this.board[row][col];
-  //       if (
-  //         (cell.state === ECellState.flagged ||
-  //           cell.state === ECellState.notvisible) &&
-  //         cell.value === ECellValue.mine
-  //       ) {
-  //         minesFound++;
-  //       }
-  //     }
-  //   }
-
-  //   return minesFound === this.mines;
-  // }
+  /* Check if player has won. 
+    - are all mines are flagged?
+    - are all other cells revealed?
+  */
+  public hasWon(): boolean {
+    return (
+      this.minesFound === this.mines &&
+      this.board.every((row) =>
+        row.every((cell) =>
+          cell.value !== ECellValue.mine
+            ? cell.state === ECellState.visible
+            : cell.value === ECellValue.mine
+            ? true
+            : false
+        )
+      )
+    );
+  }
 }

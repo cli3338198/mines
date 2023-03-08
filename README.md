@@ -1,8 +1,8 @@
 # Minesweeper
 
-## Installation
+## Demo
 
-## Testing
+## Installation
 
 ## Webpack
 
